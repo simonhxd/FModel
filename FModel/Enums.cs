@@ -109,7 +109,6 @@ public enum EBulkType
     Audio =         1 << 5,
     Code =          1 << 6,
     Raw =           1 << 7,
-    Worlds =        1 << 8,
 }
 
 public enum EAssetCategory : uint
@@ -171,10 +170,4 @@ public enum EUnluacMode
 {
     Decompile,
     Disassemble,
-}
-
-public enum EExplorerViewMode
-{
-    Grid,
-    List
 }

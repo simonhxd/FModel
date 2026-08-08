@@ -4,8 +4,7 @@ namespace FModel.Views.Resources.Controls.Aup;
 
 public enum ESourceEventType
 {
-    Loading,
-    Clearing
+    Loading
 }
 
 public class SourceEventArgs : EventArgs

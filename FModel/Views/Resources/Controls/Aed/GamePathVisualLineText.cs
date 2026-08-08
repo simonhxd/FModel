@@ -17,14 +17,16 @@ public class GamePathVisualLineText : VisualLineText
     private ThreadWorkerViewModel _threadWorkerView => ApplicationService.ThreadWorkerView;
     private ApplicationViewModel _applicationView => ApplicationService.ApplicationView;
 
-    public delegate void GamePathOnClick(string gamePath);
+    public delegate void GamePathOnClick(string gamePath, string parentExportType);
 
     public event GamePathOnClick OnGamePathClicked;
     private readonly string _gamePath;
+    private readonly string _parentExportType;
 
-    public GamePathVisualLineText(string gamePath, VisualLine parentVisualLine, int length) : base(parentVisualLine, length)
+    public GamePathVisualLineText(string gamePath, string parentExportType, VisualLine parentVisualLine, int length) : base(parentVisualLine, length)
     {
         _gamePath = gamePath;
+        _parentExportType = parentExportType;
     }
 
     public override TextRun CreateTextRun(int startVisualColumn, ITextRunConstructionContext context)
@@ -57,14 +59,14 @@ public class GamePathVisualLineText : VisualLineText
         if (e.Handled || OnGamePathClicked == null)
             return;
 
-        OnGamePathClicked(_gamePath);
+        OnGamePathClicked(_gamePath, _parentExportType);
         e.Handled = true;
     }
 
     protected override VisualLineText CreateInstance(int length)
     {
-        var a = new GamePathVisualLineText(_gamePath, ParentVisualLine, length);
-        a.OnGamePathClicked += async gamePath =>
+        var a = new GamePathVisualLineText(_gamePath, _parentExportType, ParentVisualLine, length);
+        a.OnGamePathClicked += async (gamePath, parentExportType) =>
         {
             var obj = gamePath.SubstringAfterLast('.');
             var package = gamePath.SubstringBeforeLast('.');
@@ -85,7 +87,7 @@ public class GamePathVisualLineText : VisualLineText
             }
 
             await _threadWorkerView.Begin(cancellationToken =>
-                _applicationView.CUE4Parse.ExtractAndScroll(cancellationToken, fullPath, obj));
+                _applicationView.CUE4Parse.ExtractAndScroll(cancellationToken, fullPath, obj, parentExportType));
         };
         return a;
     }

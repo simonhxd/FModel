@@ -2,11 +2,10 @@ using System.Windows.Controls;
 
 namespace FModel.Views.Resources.Controls.TiledExplorer;
 
-public partial class FileButton : UserControl
+public partial class FolderButton2 : UserControl
 {
-    public FileButton()
+    public FolderButton2()
     {
         InitializeComponent();
     }
 }
-

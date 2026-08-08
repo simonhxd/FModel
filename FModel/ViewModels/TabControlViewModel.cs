@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using CUE4Parse_Conversion.Options;
 using CUE4Parse.FileProvider.Objects;
 using CUE4Parse.UE4.Assets.Exports.Texture;
 using CUE4Parse.Utils;
@@ -114,7 +113,7 @@ public class TabImage : ViewModel
         else
         {
             ImageBuffer = imageData;
-            ExportName += "." + (NoAlpha || UserSettings.Default.TextureExportFormat == ETextureFormat.Jpeg ? "jpg" : "png");
+            ExportName += "." + (NoAlpha ? "jpg" : "png");
         }
 
         using var stream = new MemoryStream(imageData);
@@ -133,6 +132,8 @@ public class TabImage : ViewModel
 
 public class TabItem : ViewModel
 {
+    public string ParentExportType { get; private set; }
+
     private GameFile _entry;
     public GameFile Entry
     {
@@ -266,9 +267,10 @@ public class TabItem : ViewModel
     private GoToCommand _goToCommand;
     public GoToCommand GoToCommand => _goToCommand ??= new GoToCommand(null);
 
-    public TabItem(GameFile entry)
+    public TabItem(GameFile entry, string parentExportType)
     {
         Entry = entry;
+        ParentExportType = parentExportType;
         _images = new ObservableCollection<TabImage>();
     }
 
@@ -276,6 +278,7 @@ public class TabItem : ViewModel
     {
         Entry = entry;
         TitleExtra = string.Empty;
+        ParentExportType = string.Empty;
         ScrollTrigger = null;
         Application.Current.Dispatcher.Invoke(() =>
         {
@@ -469,7 +472,7 @@ public class TabControlViewModel : ViewModel
 
     public void AddTab() => AddTab("New Tab");
     public void AddTab(string title) => AddTab(new FakeGameFile(title));
-    public void AddTab(GameFile entry)
+    public void AddTab(GameFile entry, string parentExportType = null)
     {
         if (SelectedTab?.Header == "New Tab")
         {
@@ -480,7 +483,7 @@ public class TabControlViewModel : ViewModel
         if (!CanAddTabs) return;
         Application.Current.Dispatcher.Invoke(() =>
         {
-            _tabItems.Add(new TabItem(entry));
+            _tabItems.Add(new TabItem(entry, parentExportType ?? string.Empty));
             SelectedTab = _tabItems.Last();
         });
     }

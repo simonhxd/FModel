@@ -28,14 +28,6 @@ public enum ELog
     None
 }
 
-/// <summary>
-/// this whole thing needs a refactor
-/// TODO: source of truth for logs should be Serilog
-/// a custom sink to reroute some of these logs to the UI
-/// the ui should be an ObservableCollection of things
-/// the things displayed in ListBox (virtualized) should use a custom template
-/// see how logs work in ExportSessionViewModel
-/// </summary>
 public class FLogger : ITextFormatter
 {
     public static CustomRichTextBox Logger;
@@ -115,12 +107,14 @@ public class FLogger : ITextFormatter
         try
         {
             Logger.Document.ContentEnd.InsertTextInRun(message);
+            if (newLine) Logger.Document.ContentEnd.InsertLineBreak();
+
             Logger.Selection.Select(Logger.Document.ContentStart.GetPositionAtOffset(_previous), Logger.Document.ContentEnd);
             Logger.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, _brushConverter.ConvertFromString(color));
         }
         finally
         {
-            Finally(newLine);
+            Finally();
         }
     }
 
@@ -128,7 +122,7 @@ public class FLogger : ITextFormatter
     {
         try
         {
-            new Hyperlink(new Run(message), Logger.Document.ContentEnd)
+            new Hyperlink(new Run(newLine ? $"{message}{Environment.NewLine}" : message), Logger.Document.ContentEnd)
             {
                 NavigateUri = new Uri(url),
                 OverridesDefaultStyle = true,
@@ -169,21 +163,12 @@ public class FLogger : ITextFormatter
         }
         finally
         {
-            Finally(newLine);
+            Finally();
         }
     }
 
-    private const int MaxBlocks = 250; // in the meantime
-
-    private static void Finally(bool newLine)
+    private static void Finally()
     {
-        if (newLine) Logger.Document.Blocks.Add(new Paragraph { Margin = new Thickness(0) });
-
-        while (Logger.Document.Blocks.Count > MaxBlocks)
-        {
-            Logger.Document.Blocks.Remove(Logger.Document.Blocks.FirstBlock);
-        }
-
         Logger.ScrollToEnd();
         _previous = Math.Abs(Logger.Document.ContentEnd.GetOffsetToPosition(Logger.Document.ContentStart)) - 2;
     }

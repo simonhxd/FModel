@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using CUE4Parse_Conversion.Writers.ActorX.Structs.Animations;
+using CUE4Parse_Conversion.Animations.PSA;
 using CUE4Parse.UE4.Assets.Exports.Animation;
-using CUE4Parse.UE4.Objects.Core.Math;
 using CUE4Parse.UE4.Objects.Core.Misc;
 using FModel.Views.Snooper.Buffers;
 using FModel.Views.Snooper.Shading;
@@ -65,7 +64,6 @@ public class Skeleton : IDisposable
                 bone.Rest.Relation = parentBone.Rest.Matrix;
                 parentBone.LoweredChildNames.Add(boneName);
             }
-            else bone.Rest.Scale = FVector.OneVector;
 
             if (boneIndex == 0) SelectedBone = boneName;
             BonesByLoweredName[boneName] = bone;
@@ -205,7 +203,6 @@ public class Skeleton : IDisposable
 
                 sequence.Tracks[bone.SkeletonIndex].GetBoneTransform(f, sequence.NumFrames, ref boneOrientation, ref bonePosition, ref boneScale);
                 if (!bone.IsRoot) boneMatrix = _boneMatriceAtFrame[bone.ParentIndex];
-                else boneScale = bone.Rest.Scale;
                 bonePosition = rotationOnly ? bone.Rest.Position : bonePosition * Constants.SCALE_DOWN_RATIO;
 
                 boneMatrix = new Transform

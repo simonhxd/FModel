@@ -1,4 +1,3 @@
-using System;
 using System.Windows;
 using AdonisUI.Controls;
 using FModel.Framework;
@@ -32,14 +31,8 @@ public class TabCommand : ViewModelCommand<TabItem>
             case "Close_Other_Tabs":
                 _applicationView.CUE4Parse.TabControl.RemoveOtherTabs(tabViewModel);
                 break;
-            case "Assets_Show_Metadata":
-                _applicationView.CUE4Parse.ShowMetadata(tabViewModel.Entry);
-                break;
             case "Find_References":
                 _applicationView.CUE4Parse.FindReferences(tabViewModel.Entry);
-                break;
-            case "Assets_Decompile":
-                _applicationView.CUE4Parse.Decompile(tabViewModel.Entry);
                 break;
             case "Save_Data":
                 await _threadWorkerView.Begin(_ => _applicationView.CUE4Parse.ExportData(tabViewModel.Entry));
@@ -60,12 +53,6 @@ public class TabCommand : ViewModelCommand<TabItem>
                 await _threadWorkerView.Begin(cancellationToken =>
                 {
                     _applicationView.CUE4Parse.Extract(cancellationToken, tabViewModel.Entry, false, EBulkType.Meshes);
-                });
-                break;
-            case "Save_Worlds":
-                await _threadWorkerView.Begin(cancellationToken =>
-                {
-                    _applicationView.CUE4Parse.Extract(cancellationToken, tabViewModel.Entry, false, EBulkType.Worlds);
                 });
                 break;
             case "Save_Animations":
@@ -90,26 +77,9 @@ public class TabCommand : ViewModelCommand<TabItem>
                     }.Show();
                 });
                 break;
-            case "File_Path":
+            case "Copy_Asset_Path":
                 Clipboard.SetText(tabViewModel.Entry.Path);
                 break;
-            case "File_Name":
-                Clipboard.SetText(tabViewModel.Entry.Name);
-                break;
-            case "Directory_Path":
-                Clipboard.SetText(tabViewModel.Entry.Directory);
-                break;
-            case "File_Path_No_Extension":
-                Clipboard.SetText(tabViewModel.Entry.PathWithoutExtension);
-                break;
-            case "File_Name_No_Extension":
-                Clipboard.SetText(tabViewModel.Entry.NameWithoutExtension);
-                break;
-        }
-
-        if (parameter is string command && command.StartsWith("Save_", StringComparison.Ordinal)) // This is kinda bad
-        {
-            await ExportSessionViewModel.Instance.ExportAutomaticallyAsync();
         }
     }
 }

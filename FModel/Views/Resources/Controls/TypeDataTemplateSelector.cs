@@ -4,25 +4,15 @@ using FModel.ViewModels;
 
 namespace FModel.Views.Resources.Controls;
 
-public sealed class TypeDataTemplateSelector : DataTemplateSelector
+public class TypeDataTemplateSelector : DataTemplateSelector
 {
-    public object FolderTemplateKey { get; set; }
-    public object FileTemplateKey { get; set; }
-
-    public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
+    public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
-        if (container is not FrameworkElement element)
-            return base.SelectTemplate(item, container);
-
-        var key = item switch
+        return item switch
         {
-            TreeItem => FolderTemplateKey,
-            GameFileViewModel => FileTemplateKey,
-            _ => null
+            TreeItem when container is FrameworkElement f => f.FindResource("TiledFolderDataTemplate") as DataTemplate,
+            GameFileViewModel when container is FrameworkElement f => f.FindResource("TiledFileDataTemplate") as DataTemplate,
+            _ => base.SelectTemplate(item, container)
         };
-
-        return key is not null
-            ? element.TryFindResource(key) as DataTemplate
-            : base.SelectTemplate(item, container);
     }
 }

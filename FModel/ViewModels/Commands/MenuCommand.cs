@@ -40,9 +40,6 @@ public class MenuCommand : ViewModelCommand<ApplicationViewModel>
             case "Views_3dViewer":
                 contextViewModel.CUE4Parse.SnooperViewer.Run();
                 break;
-            case "Views_ExportSession":
-                Helper.OpenWindow<AdonisWindow>("Export Session", () => new ExportSessionWindow().Show());
-                break;
             case "Views_AudioPlayer":
                 Helper.OpenWindow<AdonisWindow>("Audio Player", () => new AudioPlayer().Show());
                 break;

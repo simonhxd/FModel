@@ -6,13 +6,13 @@ using System.Threading;
 using System.Windows;
 using CUE4Parse_Conversion.Animations;
 using CUE4Parse_Conversion.Meshes;
-using CUE4Parse_Conversion.Options;
 using CUE4Parse.UE4.Assets.Exports;
 using CUE4Parse.UE4.Assets.Exports.Animation;
 using CUE4Parse.UE4.Assets.Exports.Component.SplineMesh;
 using CUE4Parse.UE4.Assets.Exports.Component.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.GeometryCollection;
 using CUE4Parse.UE4.Assets.Exports.Material;
+using CUE4Parse.UE4.Assets.Exports.Nanite;
 using CUE4Parse.UE4.Assets.Exports.SkeletalMesh;
 using CUE4Parse.UE4.Assets.Exports.StaticMesh;
 using CUE4Parse.UE4.Assets.Exports.Texture;
@@ -29,6 +29,7 @@ using FModel.Views.Snooper.Lights;
 using FModel.Views.Snooper.Models;
 using FModel.Views.Snooper.Shading;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using UModel = FModel.Views.Snooper.Models.UModel;
 
 namespace FModel.Views.Snooper;
 
@@ -174,7 +175,7 @@ public class Renderer : IDisposable
                 t.Scale = offset.Scale3D;
             }
 
-            IRenderableModel addedModel = null;
+            UModel addedModel = null;
             switch (export)
             {
                 case UStaticMesh st:
@@ -184,7 +185,7 @@ public class Renderer : IDisposable
                     {
                         addedModel.AddInstance(t);
                     }
-                    else if (st.TryConvert(out var mesh, EMeshQuality.Highest))
+                    else if (st.TryConvert(out var mesh))
                     {
                         addedModel = new StaticModel(st, mesh, t);
                         Options.Models[guid] = addedModel;
@@ -194,7 +195,7 @@ public class Renderer : IDisposable
                 case USkeletalMesh sk:
                 {
                     guid = Guid.NewGuid();
-                    if (!Options.Models.ContainsKey(guid) && sk.TryConvert(out var mesh, EMeshQuality.Highest))
+                    if (!Options.Models.ContainsKey(guid) && sk.TryConvert(out var mesh))
                     {
                         addedModel = new SkeletalModel(sk, mesh, t);
                         Options.Models[guid] = addedModel;
@@ -343,7 +344,7 @@ public class Renderer : IDisposable
             wnd.WindowShouldClose(true, true);
     }
 
-    private void LoadStaticMesh(UStaticMesh original, ENaniteMeshFormat naniteFormat = ENaniteMeshFormat.NoNanite)
+    private void LoadStaticMesh(UStaticMesh original, ENaniteMeshFormat naniteFormat = ENaniteMeshFormat.OnlyNormalLODs)
     {
         var guid = original.LightingGuid;
         if (Options.TryGetModel(guid, out var model))
@@ -353,7 +354,7 @@ public class Renderer : IDisposable
             return;
         }
 
-        if (!original.TryConvert(out var mesh, EMeshQuality.Highest, naniteFormat))
+        if (!original.TryConvert(out var mesh, naniteFormat))
             return;
 
         Options.Models[guid] = new StaticModel(original, mesh);
@@ -363,7 +364,7 @@ public class Renderer : IDisposable
     private void LoadSkeletalMesh(USkeletalMesh original)
     {
         var guid = new FGuid((uint) original.GetFullName().GetHashCode());
-        if (Options.Models.ContainsKey(guid) || !original.TryConvert(out var mesh, EMeshQuality.Highest)) return;
+        if (Options.Models.ContainsKey(guid) || !original.TryConvert(out var mesh)) return;
 
         var skeletalModel = new SkeletalModel(original, mesh);
         Options.Models[guid] = skeletalModel;
@@ -394,7 +395,7 @@ public class Renderer : IDisposable
             return;
         }
 
-        if (!editorCube.TryConvert(out var mesh, EMeshQuality.Highest))
+        if (!editorCube.TryConvert(out var mesh))
             return;
 
         Options.Models[guid] = new StaticModel(original, mesh);
@@ -597,7 +598,7 @@ public class Renderer : IDisposable
             if (bSpline && model is SplineModel splineModel)
                 splineModel.AddComponent((USplineMeshComponent)staticMeshComp);
         }
-        else if (m.TryConvert(out var mesh, EMeshQuality.Highest, UserSettings.Default.NaniteMeshExportFormat))
+        else if (m.TryConvert(out var mesh, UserSettings.Default.NaniteMeshExportFormat))
         {
             model = bSpline ? new SplineModel(m, mesh, (USplineMeshComponent)staticMeshComp, transform) : new StaticModel(m, mesh, transform);
             model.IsTwoSided = actor.GetOrDefault("bMirrored", staticMeshComp.GetOrDefault("bDisallowMeshPaintPerInstance", model.IsTwoSided));
@@ -712,7 +713,7 @@ public class Renderer : IDisposable
                     continue;
 
                 var parameters = new CMaterialParams2();
-                unrealMaterial.GetParams(parameters, EMaterialDepth.TopLayerOnly);
+                unrealMaterial.GetParams(parameters, EMaterialFormat.FirstLayer);
 
                 if (!parameters.TryGetLinearColor(out var color, "Color"))
                     color = FLinearColor.Gray;
@@ -725,7 +726,7 @@ public class Renderer : IDisposable
             if (!material.TryLoad(out UMaterialInterface unrealMaterial)) continue;
 
             var parameters = new CMaterialParams2();
-            unrealMaterial.GetParams(parameters, EMaterialDepth.TopLayerOnly);
+            unrealMaterial.GetParams(parameters, EMaterialFormat.FirstLayer);
 
             if (!byte.TryParse(material.Name.SubstringAfterLast("_"), out var indexAsByte))
                 indexAsByte = byte.MaxValue;
