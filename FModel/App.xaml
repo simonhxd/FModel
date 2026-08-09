@@ -23,8 +23,8 @@
                 <ResourceDictionary Source="Views/Resources/Controls/TiledExplorer/Resources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Color x:Key="{x:Static adonisUi:Colors.AccentColor}">#D4AF37</Color>
-            <Color x:Key="{x:Static adonisUi:Colors.AlertColor}">#D412f0</Color>
+            <Color x:Key="{x:Static adonisUi:Colors.AccentColor}">#2990B5</Color>
+            <Color x:Key="{x:Static adonisUi:Colors.AlertColor}">#D49220</Color>
             <Color x:Key="{x:Static adonisUi:Colors.ErrorColor}">#C22B2B</Color>
         </ResourceDictionary>
     </Application.Resources>
