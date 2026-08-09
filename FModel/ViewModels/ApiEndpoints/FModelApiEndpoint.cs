@@ -34,11 +34,16 @@ public class FModelApiEndpoint : AbstractApiProvider
 
     public async Task<News> GetNewsAsync(CancellationToken token, string game)
     {
-        var request = new FRestRequest($"https://api.fmodel.app/v1/news/{Constants.APP_VERSION}");
-        request.AddParameter("game", game);
-        var response = await _client.ExecuteAsync<News>(request, token).ConfigureAwait(false);
-        Log.Information("[{Method}] [{Status}({StatusCode})] '{Resource}'", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
-        return response.Data;
+        //var request = new FRestRequest($"https://api.fmodel.app/v1/news/{Constants.APP_VERSION}");
+        //request.AddParameter("game", game);
+        //var response = await _client.ExecuteAsync<News>(request, token).ConfigureAwait(false);
+        //Log.Information("[{Method}] [{Status}({StatusCode})] '{Resource}'", request.Method, response.StatusDescription, (int) response.StatusCode, response.ResponseUri?.OriginalString);
+        //return response.Data;
+        var data = new News();
+        data.Colors = ["#EFEFEF", "#6C81CA", "#EFEFEF", "#E5C07B", "#EFEFEF", "#EFEFEF", "#EFEFEF"];
+        data.Messages = ["If you're having an issue with BlevModel, make sure to let us know on Discord at ", "https://blevmodel.app/discord/", "", "[WRN]", " BlevModel is free and open-source, if you paid for this, you got scammed",""];
+        data.NewLines = ["false","true","true","false","false","true"];
+        return data;
     }
 
     public News GetNews(CancellationToken token, string game)

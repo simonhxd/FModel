@@ -11,9 +11,9 @@ namespace FModel.ViewModels.ApiEndpoints.Models;
 [DebuggerDisplay("{" + nameof(Messages) + "}")]
 public class News
 {
-    [J] public string[] Messages { get; private set; }
-    [J] public string[] Colors { get; private set; }
-    [J] public string[] NewLines { get; private set; }
+    [J] public string[] Messages { get; set; }
+    [J] public string[] Colors { get; set; }
+    [J] public string[] NewLines { get; set; }
 }
 
 [DebuggerDisplay("{" + nameof(FileName) + "}")]
